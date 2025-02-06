@@ -5,6 +5,7 @@
 {% block body %}
     <div class="container mt-4">
         <h1>Détails de la réservation</h1>
+        <p><strong>Utilisateur:</strong> {{ reservation.user.nom }} {{ reservation.user.prenom }}</p>
         <p><strong>Véhicule:</strong> {{ reservation.vehicule.marque }} {{ reservation.vehicule.modele }}</p>
         <p><strong>Date de début:</strong> {{ reservation.beginDate|date('d/m/Y') }}</p>
         <p><strong>Date de fin:</strong> {{ reservation.endDate|date('d/m/Y') }}</p>
