@@ -29,23 +29,26 @@ final class ReservationController extends AbstractController
     {
         $vehicule = $entityManager->getRepository(Vehicule::class)->find($id_vehicule);
         $user = $entityManager->getRepository(User::class)->find($id_user);
-    
+
         if (!$vehicule || !$user) {
             throw $this->createNotFoundException('Véhicule ou utilisateur introuvable.');
         }
-    
+
         $reservation = new Reservation();
         $reservation->setVehicule($vehicule);
         $reservation->setUser($user);
         $reservation->setStatus('En attente');
-    
+
+        $vehicule->setIsDisponible(false);
+        $entityManager->persist($vehicule);
+
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
-    
+
         if ($form->isSubmitted() && $form->isValid()) {
             $beginDate = $reservation->getBeginDate();
             $endDate = $reservation->getEndDate();
-    
+
             if ($endDate < $beginDate) {
                 $this->addFlash('error', 'La date de fin doit être après la date de début.');
                 return $this->redirectToRoute('app_reservation_new', [
@@ -53,23 +56,23 @@ final class ReservationController extends AbstractController
                     'id_user' => $user->getId(),
                 ]);
             }
-    
+
             $daysCount = $beginDate->diff($endDate)->days;
             $totalPrice = $vehicule->getDayPrice() * $daysCount;
             $reservation->setTotalPrice($totalPrice);
-    
 
             $entityManager->persist($reservation);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_reservation_user', [], Response::HTTP_SEE_OTHER);
         }
-    
+
         return $this->render('reservation/new.html.twig', [
             'reservation' => $reservation,
             'form' => $form->createView(),
         ]);
     }
+
     
     #[Route('/{id<\d+>}', name: 'app_reservation_show', methods: ['GET'])]
     public function show(int $id, EntityManagerInterface $entityManager): Response
@@ -102,5 +105,22 @@ final class ReservationController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/conclure', name: 'app_reservation_conclure', methods: ['GET'])]
+    public function conclure(int $id, EntityManagerInterface $entityManager): Response
+    {
+        $reservation = $entityManager->getRepository(Reservation::class)->find($id);
+        
+        if (!$reservation) {
+            throw $this->createNotFoundException('Réservation non trouvée.');
+        }
+        $vehicule = $reservation->getVehicule();
+        $vehicule->setIsDisponible(true);
+        $entityManager->persist($vehicule);
 
+        $reservation->setStatus('Terminée');
+        $entityManager->persist($reservation);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_reservation_user', [], Response::HTTP_SEE_OTHER);
+    }
 }

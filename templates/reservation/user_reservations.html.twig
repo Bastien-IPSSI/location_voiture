@@ -31,6 +31,9 @@
                             <td>
                                 <a href="{{ path('app_reservation_show', {'id': reservation.id}) }}" class="btn btn-info">Détails</a>
                                 <a href="{{ path('app_commentaire_new', {'vehicule_id': reservation.vehicule.id}) }}" class="btn btn-info">Ajouter un commentaire</a>
+                                {% if reservation.status != 'Terminée' %}
+                                    <a href="{{ path('app_reservation_conclure' , {'id': reservation.id}) }}" class="btn btn-danger">Terminé la reservation</a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
