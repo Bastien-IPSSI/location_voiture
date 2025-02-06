@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Véhicules Disponibles{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Véhicules Disponibles</h1>
+
+        {% if vehicules is empty %}
+            <p>Aucun véhicule disponible pour le moment.</p>
+        {% else %}
+            <div class="row">
+                {% for vehicule in vehicules %}
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <p class="card-text">
+                                    Marque: {{ vehicule.marque }}<br>
+                                    Modèle: {{ vehicule.modele }}<br>
+                                    Prix/jour: {{ vehicule.dayPrice }}€
+                                </p>
+                                <a href="{{ path('app_reservation_new', {'id_vehicule': vehicule.id, 'id_user': app.user.id}) }}" class="btn btn-primary">
+                                    Réserver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

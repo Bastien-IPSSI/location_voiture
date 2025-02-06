@@ -27,7 +27,12 @@ class Commentaire
     #[ORM\ManyToOne(targetEntity: Vehicule::class, inversedBy: "commentaires")]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Vehicule $vehicule = null;
-    
+
+    // Constructeur pour initialiser la date à la création du commentaire
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();  // Date actuelle
+    }
 
     public function getId(): ?int
     {

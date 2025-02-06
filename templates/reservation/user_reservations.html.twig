@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réservations{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Mes Réservations</h1>
+
+        {% if reservations is empty %}
+            <p>Aucune réservation trouvée.</p>
+        {% else %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Véhicule</th>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Prix total</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                        <tr>
+                            <td>{{ reservation.vehicule.marque }} {{ reservation.vehicule.modele }}</td>
+                            <td>{{ reservation.beginDate|date('d/m/Y') }}</td>
+                            <td>{{ reservation.endDate|date('d/m/Y') }}</td>
+                            <td>{{ reservation.totalPrice }}€</td>
+                            <td>{{ reservation.status }}</td>
+                            <td>
+                                <a href="{{ path('app_reservation_show', {'id': reservation.id}) }}" class="btn btn-info">Détails</a>
+                                <a href="{{ path('app_commentaire_new', {'vehicule_id': reservation.vehicule.id}) }}" class="btn btn-info">Ajouter un commentaire</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

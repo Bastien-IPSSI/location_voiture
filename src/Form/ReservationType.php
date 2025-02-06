@@ -3,10 +3,9 @@
 namespace App\Form;
 
 use App\Entity\Reservation;
-use App\Entity\User;
-use App\Entity\Vehicule;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,23 +14,18 @@ class ReservationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('beginDate', null, [
-                'widget' => 'single_text'
+            ->add('begin_date', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date de début',
             ])
-            ->add('endDate', null, [
-                'widget' => 'single_text'
+            ->add('end_date', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date de fin',
             ])
-            ->add('totalPrice')
-            ->add('status')
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-'choice_label' => 'id',
-            ])
-            ->add('vehicule', EntityType::class, [
-                'class' => Vehicule::class,
-'choice_label' => 'id',
-            ])
-        ;
+            ->add('save', SubmitType::class, [
+                'label' => 'Réserver',
+                'attr' => ['class' => 'btn btn-primary']
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

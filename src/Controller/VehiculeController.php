@@ -12,12 +12,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/vehicule')]
-final class VehiculeController extends AbstractController{
+final class VehiculeController extends AbstractController
+{
     #[Route(name: 'app_vehicule_index', methods: ['GET'])]
     public function index(VehiculeRepository $vehiculeRepository): Response
     {
         return $this->render('vehicule/index.html.twig', [
             'vehicules' => $vehiculeRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/disponibles', name: 'app_vehicule_disponibles', methods: ['GET'])]
+    public function disponibles(VehiculeRepository $vehiculeRepository): Response
+    {
+        return $this->render('vehicule/disponibles.html.twig', [
+            'vehicules' => $vehiculeRepository->findBy(['isDisponible' => true]),
         ]);
     }
 

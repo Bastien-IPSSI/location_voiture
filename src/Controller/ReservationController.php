@@ -3,16 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
+use App\Entity\Vehicule;
+use App\Entity\User;
 use App\Form\ReservationType;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/reservation')]
-final class ReservationController extends AbstractController{
+final class ReservationController extends AbstractController
+{
     #[Route(name: 'app_reservation_index', methods: ['GET'])]
     public function index(ReservationRepository $reservationRepository): Response
     {
@@ -21,60 +24,83 @@ final class ReservationController extends AbstractController{
         ]);
     }
 
-    #[Route('/new', name: 'app_reservation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new/{id_vehicule}/{id_user}', name: 'app_reservation_new', methods: ['GET', 'POST'])]
+    public function new(int $id_vehicule, int $id_user, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $vehicule = $entityManager->getRepository(Vehicule::class)->find($id_vehicule);
+        $user = $entityManager->getRepository(User::class)->find($id_user);
+    
+        if (!$vehicule || !$user) {
+            throw $this->createNotFoundException('Véhicule ou utilisateur introuvable.');
+        }
+    
         $reservation = new Reservation();
+        $reservation->setVehicule($vehicule);
+        $reservation->setUser($user);
+        $reservation->setStatus('En attente');
+    
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            $beginDate = $reservation->getBeginDate();
+            $endDate = $reservation->getEndDate();
+    
+            if ($endDate < $beginDate) {
+                $this->addFlash('error', 'La date de fin doit être après la date de début.');
+                return $this->redirectToRoute('app_reservation_new', [
+                    'id_vehicule' => $vehicule->getId(),
+                    'id_user' => $user->getId(),
+                ]);
+            }
+    
+            $daysCount = $beginDate->diff($endDate)->days;
+            $totalPrice = $vehicule->getDayPrice() * $daysCount;
+            $reservation->setTotalPrice($totalPrice);
+    
+
             $entityManager->persist($reservation);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_reservation_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_reservation_user', [], Response::HTTP_SEE_OTHER);
         }
-
+    
         return $this->render('reservation/new.html.twig', [
             'reservation' => $reservation,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
-
-    #[Route('/{id}', name: 'app_reservation_show', methods: ['GET'])]
-    public function show(Reservation $reservation): Response
+    
+    #[Route('/{id<\d+>}', name: 'app_reservation_show', methods: ['GET'])]
+    public function show(int $id, EntityManagerInterface $entityManager): Response
     {
+        $reservation = $entityManager->getRepository(Reservation::class)->find($id);
+    
+        if (!$reservation) {
+            throw $this->createNotFoundException('Réservation non trouvée.');
+        }
+    
         return $this->render('reservation/show.html.twig', [
             'reservation' => $reservation,
         ]);
     }
+    
 
-    #[Route('/{id}/edit', name: 'app_reservation_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
+    #[Route('/mes-reservations', name: 'app_reservation_user', methods: ['GET'])]
+    public function userReservations(ReservationRepository $reservationRepository): Response
     {
-        $form = $this->createForm(ReservationType::class, $reservation);
-        $form->handleRequest($request);
+        $user = $this->getUser();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_reservation_index', [], Response::HTTP_SEE_OTHER);
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour voir vos réservations.');
         }
 
-        return $this->render('reservation/edit.html.twig', [
-            'reservation' => $reservation,
-            'form' => $form,
+        $reservations = $reservationRepository->findBy(['user' => $user]);
+
+        return $this->render('reservation/user_reservations.html.twig', [
+            'reservations' => $reservations,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_reservation_delete', methods: ['POST'])]
-    public function delete(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$reservation->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($reservation);
-            $entityManager->flush();
-        }
 
-        return $this->redirectToRoute('app_reservation_index', [], Response::HTTP_SEE_OTHER);
-    }
 }

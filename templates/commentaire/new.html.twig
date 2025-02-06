@@ -1,11 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Commentaire{% endblock %}
+{% block title %}Laisser un Commentaire{% endblock %}
 
 {% block body %}
-    <h1>Create new Commentaire</h1>
+    <div class="container mt-4">
+        <h1>Laisser un Commentaire pour le véhicule {{ vehicule.marque }} - {{ vehicule.modele }}</h1>
 
-    {{ include('commentaire/_form.html.twig') }}
+        {{ form_start(form) }}
+            {{ form_row(form.contenu) }}
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+        {{ form_end(form) }}
 
-    <a href="{{ path('app_commentaire_index') }}">back to list</a>
+        <a href="{{ path('app_vehicule_show', {'id': vehicule.id}) }}" class="btn btn-link mt-3">Retour au véhicule</a>
+    </div>
 {% endblock %}
