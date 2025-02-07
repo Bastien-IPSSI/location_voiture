@@ -107,11 +107,20 @@ class Vehicule
     }
 
     public function setIsDisponible(bool $isDisponible): static
-    {
-        $this->isDisponible = $isDisponible;
-
-        return $this;
+{
+    foreach ($this->reservations as $reservation) {
+        if ($reservation->getEndDate() > new \DateTime()) {
+            if ($this->isDisponible === false) {
+                throw new \LogicException("Le statut 'indisponible' ne peut pas être modifié tant que la réservation est en cours.");
+            }
+        }
     }
+
+    $this->isDisponible = $isDisponible;
+
+    return $this;
+}
+
 
     /**
      * @return Collection<int, Reservation>
