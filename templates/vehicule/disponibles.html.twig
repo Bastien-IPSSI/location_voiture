@@ -19,19 +19,11 @@
                                     Modèle: {{ vehicule.modele }}<br>
                                     Prix/jour: {{ vehicule.dayPrice }}€
                                 </p>
-                                {% if vehicule.commentaires is not empty %}
-                                    <h5>Commentaires :</h5>
-                                    <ul>
-                                        {% for commentaire in vehicule.commentaires %}
-                                            <li>{{ commentaire.contenu }} - <em>par {{ commentaire.user.nom }} le {{ commentaire.createdAt|date('d/m/Y') }}</em></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p>Aucun commentaire pour ce véhicule.</p>
-                                {% endif %}
-
                                 <a href="{{ path('app_reservation_new', {'id_vehicule': vehicule.id, 'id_user': app.user.id}) }}" class="btn btn-primary">
                                     Réserver
+                                </a>
+                                <a href="{{ path('app_vehicule_show', {'id': vehicule.id}) }}" class="btn btn-primary">
+                                    Détails
                                 </a>
                             </div>
                         </div>

@@ -28,6 +28,9 @@ class Commentaire
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Vehicule $vehicule = null;
 
+    #[ORM\Column(type: Types::SMALLINT)]
+    private ?int $note = null;
+
     // Constructeur pour initialiser la date à la création du commentaire
     public function __construct()
     {
@@ -83,6 +86,18 @@ class Commentaire
     public function setVehicule(?Vehicule $vehicule): static
     {
         $this->vehicule = $vehicule;
+
+        return $this;
+    }
+
+    public function getNote(): ?int
+    {
+        return $this->note;
+    }
+
+    public function setNote(int $note): static
+    {
+        $this->note = $note;
 
         return $this;
     }

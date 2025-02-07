@@ -53,8 +53,19 @@ final class VehiculeController extends AbstractController
     #[Route('/{id}', name: 'app_vehicule_show', methods: ['GET'])]
     public function show(Vehicule $vehicule): Response
     {
+        // Calcul la moyenne des notes
+        $notes = $vehicule->getCommentaires();
+        $moyenne = 0;
+        foreach ($notes as $note) {
+            $moyenne += $note->getNote();
+        }
+        $moyenne = $moyenne / count($notes);
+
+        $nbLouee = count($vehicule->getReservations());
         return $this->render('vehicule/show.html.twig', [
             'vehicule' => $vehicule,
+            'moyenne' => $moyenne,
+            'nbLouee' => $nbLouee,
         ]);
     }
 

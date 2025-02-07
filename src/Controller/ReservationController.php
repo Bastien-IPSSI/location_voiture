@@ -59,6 +59,12 @@ final class ReservationController extends AbstractController
 
             $daysCount = $beginDate->diff($endDate)->days;
             $totalPrice = $vehicule->getDayPrice() * $daysCount;
+            // Reduction de 10% si le prix total est supérieur à 400€
+            if($totalPrice > 400){
+                $totalPrice = $totalPrice * 0.9;
+
+                $this->addFlash('success', 'Félicitations ! Vous avez bénéficié d\'une réduction de 10 % sur votre réservation.');
+            }
             $reservation->setTotalPrice($totalPrice);
 
             $entityManager->persist($reservation);

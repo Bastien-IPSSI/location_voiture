@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Commentaire;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -17,6 +18,15 @@ class CommentaireType extends AbstractType
             ->add('contenu', TextareaType::class, [
                 'label' => 'Commentaire',
                 'attr' => ['placeholder' => 'Écrivez votre commentaire ici...']
+            ])
+            ->add('note', IntegerType::class, [
+                'label' => 'Note',
+                'attr' => [
+                    'min' => 0,
+                    'max' => 5,
+                    'placeholder' => 'Note (0-5)'
+                ],
+                'required' => true,
             ]);
     }
 

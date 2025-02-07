@@ -28,15 +28,30 @@
                 <td>{{ vehicule.dayPrice }}</td>
             </tr>
             <tr>
-                <th>IsDisponible</th>
-                <td>{{ vehicule.isDisponible ? 'Yes' : 'No' }}</td>
+                <th>Vehicule disponible ?</th>
+                <td>{{ vehicule.isDisponible ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Nombre de fois loué</th>
+                <td>{{ nbLouee }}</td>
             </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_vehicule_index') }}">back to list</a>
+    <h1>Commentaires</h1>
+    {% for commentaire in vehicule.commentaires %}
+        <div class="comment">
+            <p><strong>{{ commentaire.user.nom }} {{ commentaire.user.prenom }}:</strong> {{ commentaire.contenu }}</p>
+        </div>
+    {% endfor %}
 
-    <a href="{{ path('app_vehicule_edit', {'id': vehicule.id}) }}">edit</a>
+    {% if vehicule.commentaires is empty %}
+        <p>Aucun commentaire pour ce véhicule.</p>
+    {% else %}
+        <p>Moyenne des notes: {{ moyenne }} / 5</p>
+    {% endif %}
 
-    {{ include('vehicule/_delete_form.html.twig') }}
+
+
+    <a href="{{ path('app_vehicule_disponibles') }}">Revenir à la liste des véhicules</a>
 {% endblock %}
